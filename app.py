@@ -13,63 +13,58 @@ import re
 def speak_text(text):
     pass
 
-def send_order_email(user_email, order_details):
-    sender_email = "deepakumar3105s@gmail.com"
-    # IMPORTANT: Replace with actual App Password if you want this to work.
-    sender_password = "kgny qenj meri potc" 
+def send_resend_email(to_email, subject, body_text):
+    import urllib.request
+    import json
     
-    msg = MIMEText(f"Thank you for your order!\n\nDetails:\n{order_details}")
-    msg['Subject'] = 'BNC App - Order Confirmation'
-    msg['From'] = sender_email
-    msg['To'] = user_email
-
+    api_key = "re_F199wQwq_MXZP8tikJ2LJxhgaNXnGfDHY"
+    url = "https://api.resend.com/emails"
+    
+    # Resend Free Tier restriction: Can only send to your own registered email address.
+    # We will send all emails to deepakumar3105s@gmail.com, mentioning the original recipient in the text.
+    recipient = "deepakumar3105s@gmail.com"
+    
+    payload = {
+        "from": "onboarding@resend.dev",
+        "to": recipient,
+        "subject": subject,
+        "text": f"Original Intended Recipient: {to_email}\n\n{body_text}"
+    }
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
     try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, user_email, msg.as_string())
-        server.quit()
-        print(f"Email sent successfully to {user_email}")
+        req = urllib.request.Request(
+            url, 
+            data=json.dumps(payload).encode('utf-8'), 
+            headers=headers, 
+            method='POST'
+        )
+        with urllib.request.urlopen(req) as response:
+            res_body = response.read().decode('utf-8')
+            print(f"Resend Email Sent successfully: {res_body}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(f"Failed to send email via Resend API: {e}")
+
+def send_order_email(user_email, order_details):
+    subject = 'BNC App - Order Confirmation'
+    body = f"Thank you for your order!\n\nDetails:\n{order_details}"
+    send_resend_email(user_email, subject, body)
 
 def send_otp_email(user_email, otp):
-    sender_email = "deepakumar3105s@gmail.com"
-    sender_password = "kgny qenj meri potc" 
-    
-    msg = MIMEText(f"Your verification code for BNC App is: {otp}")
-    msg['Subject'] = 'BNC App - Verification OTP'
-    msg['From'] = sender_email
-    msg['To'] = user_email
-
     print(f"\n--- DEV MODE: OTP is {otp} for {user_email} ---\n") # Print to console
-
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, user_email, msg.as_string())
-        server.quit()
-    except Exception as e:
-        print(f"Failed to send OTP email: {e}")
+    subject = 'BNC App - Verification OTP'
+    body = f"Your verification code for BNC App is: {otp}"
+    send_resend_email(user_email, subject, body)
 
 def send_low_stock_email(product_name, stock):
-    sender_email = "deepakumar3105s@gmail.com"
-    sender_password = "kgny qenj meri potc" 
-    admin_email = "deepakumar3105s@gmail.com"
-    
-    msg = MIMEText(f"Low Stock Alert!\n\nThe product '{product_name}' has low stock.\nCurrent Stock: {stock} (5 or less)\n\nPlease restock this product as soon as possible.")
-    msg['Subject'] = f'BNC App - Low Stock Alert: {product_name}'
-    msg['From'] = sender_email
-    msg['To'] = admin_email
-
     print(f"\n--- DEV MODE: Low Stock Alert sent for {product_name} (Stock: {stock}) ---\n") # Print to console
-
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, admin_email, msg.as_string())
-        server.quit()
-    except Exception as e:
-        print(f"Failed to send low stock email alert: {e}")
+    subject = f'BNC App - Low Stock Alert: {product_name}'
+    body = f"Low Stock Alert!\n\nThe product '{product_name}' has low stock.\nCurrent Stock: {stock} (5 or less)\n\nPlease restock this product as soon as possible."
+    send_resend_email("deepakumar3105s@gmail.com", subject, body)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
