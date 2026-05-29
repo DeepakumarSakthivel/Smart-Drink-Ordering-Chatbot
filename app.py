@@ -16,7 +16,7 @@ def speak_text(text):
 def send_order_email(user_email, order_details):
     sender_email = "deepakumar3105s@gmail.com"
     # IMPORTANT: Replace with actual App Password if you want this to work.
-    sender_password = "osbd wwdu vrfy eepo" 
+    sender_password = "kgny qenj meri potc" 
     
     msg = MIMEText(f"Thank you for your order!\n\nDetails:\n{order_details}")
     msg['Subject'] = 'BNC App - Order Confirmation'
@@ -34,7 +34,7 @@ def send_order_email(user_email, order_details):
 
 def send_otp_email(user_email, otp):
     sender_email = "deepakumar3105s@gmail.com"
-    sender_password = "osbd wwdu vrfy eepo" 
+    sender_password = "kgny qenj meri potc" 
     
     msg = MIMEText(f"Your verification code for BNC App is: {otp}")
     msg['Subject'] = 'BNC App - Verification OTP'
@@ -53,7 +53,7 @@ def send_otp_email(user_email, otp):
 
 def send_low_stock_email(product_name, stock):
     sender_email = "deepakumar3105s@gmail.com"
-    sender_password = "osbd wwdu vrfy eepo" 
+    sender_password = "kgny qenj meri potc" 
     admin_email = "deepakumar3105s@gmail.com"
     
     msg = MIMEText(f"Low Stock Alert!\n\nThe product '{product_name}' has low stock.\nCurrent Stock: {stock} (5 or less)\n\nPlease restock this product as soon as possible.")
