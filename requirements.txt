@@ -10,7 +10,6 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 pypiwin32==223
 pyttsx3==2.99
-pywin32==311
 SQLAlchemy==2.0.50
 typing_extensions==4.15.0
 Werkzeug==3.1.8
