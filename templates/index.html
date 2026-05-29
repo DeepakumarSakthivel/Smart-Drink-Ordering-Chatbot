@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="chat-wrapper">
+    <div class="chat-header">
+        <h1>Voice Order Assistant</h1>
+        <p>Talk or type to order your drinks</p>
+    </div>
+    
+    <div class="chat-box" id="chat-box">
+        <div class="message bot-message">
+            <div class="avatar"><i class="fas fa-robot"></i></div>
+            <div class="text">Hi! Say 'show menu' or ask for a drink! For example, say 'I want Americano'</div>
+        </div>
+    </div>
+    
+    <div class="input-area">
+        <button id="voice-btn" class="voice-btn" title="Click to speak"><i class="fas fa-microphone"></i></button>
+        <input type="text" id="chat-input" placeholder="Type your message here..." autocomplete="off">
+        <button id="send-btn" class="send-btn" title="Send message"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

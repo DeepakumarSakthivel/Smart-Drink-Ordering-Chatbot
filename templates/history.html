@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="content-header">
+    <h1>Your Order History</h1>
+</div>
+<div class="table-container" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    {% if orders %}
+    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid #edf2f7; text-align: left;">
+                <th style="padding: 12px; color: #4a5568;">Date</th>
+                <th style="padding: 12px; color: #4a5568;">Product Name</th>
+                <th style="padding: 12px; color: #4a5568;">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr style="border-bottom: 1px solid #edf2f7;">
+                <td style="padding: 12px;">{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td style="padding: 12px; font-weight: 500;">{{ order.product_name }}</td>
+                <td style="padding: 12px; color: #047857; font-weight: 600;">₹{{ "%.2f"|format(order.price) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state" style="text-align: center; padding: 40px; color: #718096;">
+        <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 16px; color: #cbd5e0;"></i>
+        <p style="font-size: 1.1rem;">You haven't placed any orders yet. Go to the Order Bot to get started!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

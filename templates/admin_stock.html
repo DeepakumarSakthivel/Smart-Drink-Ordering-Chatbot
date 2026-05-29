@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="admin-wrapper">
+    <h1>Manage Stock</h1>
+    
+    <div class="glass-panel table-panel">
+        <h3>Current Stock Levels</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Stock Quantity</th>
+                    <th>Status</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in products %}
+                <tr>
+                    <td>{{ prod.name }}</td>
+                    <td>
+                        {{ prod.stock }}
+                    </td>
+                    <td>
+                        {% if prod.stock == 0 %}
+                        <span class="badge danger">Out of Stock</span>
+                        {% elif prod.stock <= 5 %}
+                        <span class="badge warning">Low Stock</span>
+                        {% else %}
+                        <span class="badge success">In Stock</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_stock') }}" class="stock-update-form">
+                            <input type="hidden" name="id" value="{{ prod.id }}">
+                            <input type="number" name="stock" value="{{ prod.stock }}" min="0" required class="short-input">
+                            <button type="submit" class="btn success-btn sm-btn"><i class="fas fa-check"></i> Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">No products found. Add products first!</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

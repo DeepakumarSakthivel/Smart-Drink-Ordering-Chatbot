@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BNC App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>☕ BNC</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}" class="nav-item"><i class="fas fa-robot"></i> Order Bot</a></li>
+                {% if session.get('role') == 'admin' %}
+                <li><a href="{{ url_for('admin_orders') }}" class="nav-item"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+                <li><a href="{{ url_for('admin_products') }}" class="nav-item"><i class="fas fa-box"></i> Products</a></li>
+                <li>
+                    <a href="{{ url_for('admin_stock') }}" class="nav-item">
+                        <i class="fas fa-cubes"></i> Stock
+                        {% if low_stock_products %}
+                        <span class="sidebar-badge" style="background: var(--danger); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; margin-left: auto; display: inline-block; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);">{{ low_stock_products|length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% else %}
+                <li><a href="{{ url_for('history') }}" class="nav-item"><i class="fas fa-history"></i> Order History</a></li>
+                {% endif %}
+                <li style="margin-top: auto;"><a href="{{ url_for('logout') }}" class="nav-item" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            
+            {% if session.get('role') == 'admin' %}
+            <div class="recent-orders-sidebar" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="color: var(--primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Recent Orders</h3>
+                {% if recent_orders %}
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+                    {% for ro in recent_orders %}
+                        <li style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+                            <span style="color: white; font-weight: 500;">{{ ro.user.email.split('@')[0] }}</span><br>
+                            Ordered: <span style="color: var(--primary);">{{ ro.product_name }}</span>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">No orders yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </nav>
+        <main class="content">
+            {% if session.get('role') == 'admin' and low_stock_products %}
+            <div class="low-stock-alert-banner" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #fca5a5; font-size: 1.2rem;"></i>
+                    <span style="color: #fca5a5; font-weight: 500;">
+                        <strong>Stock Alert!</strong> The following products have low stock (5 or less): 
+                        {% for prod in low_stock_products %}
+                            <strong style="color: white;">{{ prod.name }}</strong> ({{ prod.stock }} left){% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+                <a href="{{ url_for('admin_stock') }}" class="btn danger-btn sm-btn" style="margin: 0; padding: 6px 12px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: white;">Manage Stock</a>
+            </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
