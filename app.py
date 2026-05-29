@@ -20,15 +20,11 @@ def send_resend_email(to_email, subject, body_text):
     api_key = "re_F199wQwq_MXZP8tikJ2LJxhgaNXnGfDHY"
     url = "https://api.resend.com/emails"
     
-    # Resend Free Tier restriction: Can only send to your own registered email address.
-    # We will send all emails to deepakumar3105s@gmail.com, mentioning the original recipient in the text.
-    recipient = "deepakumars3105@gmail.com"
-    
     payload = {
         "from": "onboarding@resend.dev",
-        "to": recipient,
+        "to": to_email,
         "subject": subject,
-        "text": f"Original Intended Recipient: {to_email}\n\n{body_text}"
+        "text": body_text
     }
     
     headers = {
@@ -46,9 +42,29 @@ def send_resend_email(to_email, subject, body_text):
         )
         with urllib.request.urlopen(req) as response:
             res_body = response.read().decode('utf-8')
-            print(f"Resend Email Sent successfully: {res_body}")
+            print(f"Resend Email Sent successfully to {to_email}: {res_body}")
     except Exception as e:
-        print(f"Failed to send email via Resend API: {e}")
+        print(f"Direct email to {to_email} failed: {e}. Trying fallback to registered owner email...")
+        # Fallback to the registered testing email (deepakumars3105@gmail.com) if the direct send fails.
+        fallback_recipient = "deepakumars3105@gmail.com"
+        fallback_payload = {
+            "from": "onboarding@resend.dev",
+            "to": fallback_recipient,
+            "subject": f"[Recipient: {to_email}] {subject}",
+            "text": f"Resend Sandbox Restriction Fallback.\nOriginal Intended Recipient: {to_email}\n\n{body_text}"
+        }
+        try:
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(fallback_payload).encode('utf-8'), 
+                headers=headers, 
+                method='POST'
+            )
+            with urllib.request.urlopen(req) as response:
+                res_body = response.read().decode('utf-8')
+                print(f"Resend Fallback Email Sent successfully to {fallback_recipient}: {res_body}")
+        except Exception as fallback_err:
+            print(f"Failed to send fallback email: {fallback_err}")
 
 def send_order_email(user_email, order_details):
     subject = 'BNC App - Order Confirmation'
@@ -299,21 +315,35 @@ def api_chat():
                 orders_to_place.append({'product': p_data, 'qty': qty})
         
         if orders_to_place:
+            # Aggregate quantities by product ID to verify stock correctly in a single request
+            aggregated_orders = {}
+            for item in orders_to_place:
+                p_id = item['product'].id
+                if p_id not in aggregated_orders:
+                    aggregated_orders[p_id] = {
+                        'product': item['product'],
+                        'qty': 0
+                    }
+                aggregated_orders[p_id]['qty'] += item['qty']
+            
             total_price = 0
             order_messages = []
             email_details = []
             
             insufficient_stock = False
-            for item in orders_to_place:
-                p = item['product']
-                if p.stock < item['qty']:
-                    response_text = f"Sorry, we only have {p.stock} of {p.name} in stock, but you asked for {item['qty']}. Please adjust your order."
+            for p_id, item in aggregated_orders.items():
+                # Query database directly to get the absolute latest stock (bypassing ORM session caching)
+                p = Product.query.get(p_id)
+                if not p or p.stock < item['qty'] or item['qty'] <= 0:
+                    stock_qty = p.stock if p else 0
+                    prod_name = p.name if p else "Product"
+                    response_text = f"Sorry, we only have {stock_qty} of {prod_name} in stock, but you asked for {item['qty']}. Please adjust your order."
                     insufficient_stock = True
                     break
             
             if not insufficient_stock:
-                for item in orders_to_place:
-                    p = item['product']
+                for p_id, item in aggregated_orders.items():
+                    p = Product.query.get(p_id)
                     qty = item['qty']
                     p.stock -= qty
                     
