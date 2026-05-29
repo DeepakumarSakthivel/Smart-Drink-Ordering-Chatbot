@@ -4,7 +4,6 @@ from functools import wraps
 import os
 import pyttsx3
 import threading
-import pythoncom
 from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
