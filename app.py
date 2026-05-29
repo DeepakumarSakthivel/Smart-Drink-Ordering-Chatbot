@@ -22,7 +22,7 @@ def send_resend_email(to_email, subject, body_text):
     
     # Resend Free Tier restriction: Can only send to your own registered email address.
     # We will send all emails to deepakumar3105s@gmail.com, mentioning the original recipient in the text.
-    recipient = "deepakumar3105s@gmail.com"
+    recipient = "deepakumars3105@gmail.com"
     
     payload = {
         "from": "onboarding@resend.dev",
@@ -33,7 +33,8 @@ def send_resend_email(to_email, subject, body_text):
     
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "BNC-Coffee-App/1.0"
     }
     
     try:
