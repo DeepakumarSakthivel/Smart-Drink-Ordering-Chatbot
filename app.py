@@ -44,27 +44,7 @@ def send_resend_email(to_email, subject, body_text):
             res_body = response.read().decode('utf-8')
             print(f"Resend Email Sent successfully to {to_email}: {res_body}")
     except Exception as e:
-        print(f"Direct email to {to_email} failed: {e}. Trying fallback to registered owner email...")
-        # Fallback to the registered testing email (deepakumars3105@gmail.com) if the direct send fails.
-        fallback_recipient = "deepakumars3105@gmail.com"
-        fallback_payload = {
-            "from": "onboarding@resend.dev",
-            "to": fallback_recipient,
-            "subject": f"[Recipient: {to_email}] {subject}",
-            "text": f"Resend Sandbox Restriction Fallback.\nOriginal Intended Recipient: {to_email}\n\n{body_text}"
-        }
-        try:
-            req = urllib.request.Request(
-                url, 
-                data=json.dumps(fallback_payload).encode('utf-8'), 
-                headers=headers, 
-                method='POST'
-            )
-            with urllib.request.urlopen(req) as response:
-                res_body = response.read().decode('utf-8')
-                print(f"Resend Fallback Email Sent successfully to {fallback_recipient}: {res_body}")
-        except Exception as fallback_err:
-            print(f"Failed to send fallback email: {fallback_err}")
+        print(f"Failed to send email to {to_email} via Resend: {e}")
 
 def send_order_email(user_email, order_details):
     subject = 'BNC App - Order Confirmation'
