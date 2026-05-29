@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import os
-import pyttsx3
 import threading
 from datetime import datetime
 import smtplib
@@ -10,11 +9,9 @@ from email.mime.text import MIMEText
 import random
 import re
 
+
 def speak_text(text):
-    pythoncom.CoInitialize()
-    engine = pyttsx3.init()
-    engine.say(text)
-    engine.runAndWait()
+    pass
 
 def send_order_email(user_email, order_details):
     sender_email = "deepakumar3105s@gmail.com"
