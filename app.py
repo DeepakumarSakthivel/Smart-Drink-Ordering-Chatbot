@@ -13,24 +13,42 @@ import re
 def speak_text(text):
     pass
 
-def send_resend_email(to_email, subject, body_text):
+def send_brevo_email(to_email, subject, body_text):
     import urllib.request
     import json
     
-    api_key = "re_F199wQwq_MXZP8tikJ2LJxhgaNXnGfDHY"
-    url = "https://api.resend.com/emails"
+    api_key = os.environ.get("BREVO_API_KEY")
+    if not api_key:
+        if os.path.exists(".env"):
+            with open(".env", "r") as f:
+                for line in f:
+                    if line.startswith("BREVO_API_KEY="):
+                        api_key = line.split("=")[1].strip()
+                        
+    if not api_key:
+        print("Error: BREVO_API_KEY environment variable is not set!")
+        return
+        
+    url = "https://api.brevo.com/v3/smtp/email"
     
     payload = {
-        "from": "onboarding@resend.dev",
-        "to": to_email,
+        "sender": {
+            "name": "BNC Coffee App",
+            "email": "deepakumars3105@gmail.com"
+        },
+        "to": [
+            {
+                "email": to_email
+            }
+        ],
         "subject": subject,
-        "text": body_text
+        "textContent": body_text
     }
     
     headers = {
-        "Authorization": f"Bearer {api_key}",
+        "api-key": api_key,
         "Content-Type": "application/json",
-        "User-Agent": "BNC-Coffee-App/1.0"
+        "Accept": "application/json"
     }
     
     try:
@@ -42,26 +60,26 @@ def send_resend_email(to_email, subject, body_text):
         )
         with urllib.request.urlopen(req) as response:
             res_body = response.read().decode('utf-8')
-            print(f"Resend Email Sent successfully to {to_email}: {res_body}")
+            print(f"Brevo Email Sent successfully to {to_email}: {res_body}")
     except Exception as e:
-        print(f"Failed to send email to {to_email} via Resend: {e}")
+        print(f"Failed to send email to {to_email} via Brevo: {e}")
 
 def send_order_email(user_email, order_details):
     subject = 'BNC App - Order Confirmation'
     body = f"Thank you for your order!\n\nDetails:\n{order_details}"
-    send_resend_email(user_email, subject, body)
+    send_brevo_email(user_email, subject, body)
 
 def send_otp_email(user_email, otp):
     print(f"\n--- DEV MODE: OTP is {otp} for {user_email} ---\n") # Print to console
     subject = 'BNC App - Verification OTP'
     body = f"Your verification code for BNC App is: {otp}"
-    send_resend_email(user_email, subject, body)
+    send_brevo_email(user_email, subject, body)
 
 def send_low_stock_email(product_name, stock):
     print(f"\n--- DEV MODE: Low Stock Alert sent for {product_name} (Stock: {stock}) ---\n") # Print to console
     subject = f'BNC App - Low Stock Alert: {product_name}'
     body = f"Low Stock Alert!\n\nThe product '{product_name}' has low stock.\nCurrent Stock: {stock} (5 or less)\n\nPlease restock this product as soon as possible."
-    send_resend_email("deepakumar3105s@gmail.com", subject, body)
+    send_brevo_email("deepakumars3105@gmail.com", subject, body)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
